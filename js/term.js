@@ -1,7 +1,14 @@
 var term;
 var allfunctions=[];
+var completion_list = [];
+var game_play = false;
+var delay = 50;
+var timeoutid; 
 
 $(function() {
+	//Make sure to populate all the term-functions.
+	populate_termfunctions();
+
 	var signature = `
 ⠈⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠁⠀⠀⠀⠀⠀⠀⠀⠀
 ⠀⠈⣿⣿⣿⣿⣿⣿⠛⠛⠛⠛⠛⠛⠛⠛⠛⠛⠛⠛⠛⠛⠛⠛⠛⠛⠛⠛⠛⣿⣿⣿⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀
@@ -15,7 +22,7 @@ $(function() {
 ⠀⠀⠀⠀⠀⠀⠀⠀⠈⢿⣿⣿⣿⣿⣧⠀⠀⠀⠀⠀⠀⠀⣼⣿⡿⠁⠀⠀⠀⠀⠀Bachelor of Engineering,
 ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⣿⣿⣿⣿⣿⣆⠀⠀⠀⠀⠀⢸⣿⣿⠁⠀⠀⠀⠀⠀⠀   Ryerson University
 ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠸⣿⣿⣿⣿⣿⡄⠀⠀⠀⢠⣿⣿⠇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠹⣿⣿⣿⣿⣿⡀⠀⢀⣿⣿⠏⠀⠀⠀⠀⠀⠀⠀⠀Master's of Applied Science
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠹⣿⣿⣿⣿⣿⡀⠀⢀⣿⣿⠏⠀⠀⠀⠀⠀⠀⠀⠀Master's of Applied Science,
 ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠹⣿⣿⣿⣿⣷⣀⣾⣿⠏⠀⠀⠀⠀⠀⠀⠀⠀⠀   University of Toronto
 ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠹⣿⣿⣿⣿⣿⣿⠏⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
 ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢻⣿⣿⣿⣿⡟⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
@@ -26,7 +33,7 @@ $(function() {
 	term = $('#term').terminal(function(command, term) {
 		if (command !== '') {
 	        try {
-				var fnstring = "term_"+command;
+				var fnstring = "term_"+command.trim();
 				var fn = window[fnstring];
 
 				// is object a function?
@@ -35,17 +42,8 @@ $(function() {
 				} else if(typeof fn === "object") {
 					tree(result);
 				} else {
-					term.error((new String(fn)) + command);	
+					term.error((new String(fn)) + ": " + command);	
 				}
-	        	// command +="()";
-	         //    var result = window.eval(command);
-	         //    if (result) {
-	         //        term.echo('<#jQuery>');
-	         //    } else if (result && typeof result === 'object') {
-	         //        tree(result);
-	         //    } else if (result !== undefined) {
-	         //        term.echo(new String(result));
-	         //    }
 	        } catch(e) {
 	            term.error(new String(e));
 	        }
@@ -53,19 +51,52 @@ $(function() {
 	}, {
 		greetings: '',
 		exit: false,
+	    autocompleteMenu: true,	
+	    completion: completion_list,	
 	    onInit: function() {
-	    	populate_termfunctions();
 	        set_size();
 			this.echo(signature, {finalize: a11y_hide, formatters: false});
-
 			this.echo('Type [[b;#fff;]help] to see all options.')
-	        this.echo('Type [[b;#fff;]exit] to ...');
 	    },
 	    onClear: function() {
+
 	    },
+        keypress: function(e, term) {
+			// console.log(e);
+			// console.log(term);
+			// if (e.which == 100 && e.ctrlKey) {
+			// 	game_play = false;
+			// 	clearTimeout(timeoutid);
+			// 	console.log("clear...");				
+			// 	term.resume();
+			// 	term.clear();
+			// 	return;
+			// }
+
+		 //    switch(e.which) {
+		 //        case 119: // left
+		 //        console.log("up");
+		 //        break;
+
+		 //        case 97: // up
+		 //        console.log("left");
+		 //        break;
+
+		 //        case 115: // right
+		 //        console.log("down");
+		 //        break;
+
+		 //        case 100: // down
+		 //        console.log("right");
+		 //        break;
+
+		 //        default: return; // exit this handler for other keys
+		 //    }
+   //  e.preventDefault(); // prevent the default action (scroll / move caret)
+        },
 	    prompt: '[[b;#66FF66;]ngiambla@toronto][[b;#fff;]:][[b;#1E90FF;]~][[b;#fff;]$] '
 	});
-	// for codepen preview
+
 	if (!term.enabled()) {
 	    term.find('.cursor').addClass('blink');
 	}
@@ -84,13 +115,12 @@ $(function() {
 	function tree(obj) {
 	    term.echo(treeify.asTree(obj, true, true));
 	}
-
-    // -----------------------------------------------------------------------
-    // :: hide elements from screen readers
-    // -----------------------------------------------------------------------
-
-
 });
+
+
+// -----------------------------------------------------------------------
+// :: hide elements from screen readers
+// -----------------------------------------------------------------------
 
 function a11y_hide(element) {
     element.attr({
@@ -99,37 +129,111 @@ function a11y_hide(element) {
     });
 }
 
-function term_clear() {
-    term.clear();
-	
+
+// -----------------------------------------------------------------------
+// :: Terminal Commands
+// -----------------------------------------------------------------------
+function term_clear(showHelp=false) {
+	if(showHelp == true) {
+		return "Clears the terminal.";
+	} else {
+	    term.clear();
+	    return "";
+	}	
 }
 
-function term_whoami() {
-	term.clear();
-	term.echo("yoyo, itsa me.");
-	//term.echo("yoyo, itsa me.");
-}
-
-function term_exit() {
-    $('.tv').addClass('collapse');
-    term.disable();
-}	
-
-function term_help() {
-	term.echo("Available Commands: ");
-	for(var fun in allfunctions) {
-		term.echo(allfunctions[fun]);
+function term_getcv(showHelp=false) {
+	if(showHelp) {
+		return "Downloads my C.V.";
+	} else {
+		var link = document.createElement('a');
+		link.href = "data/cv.pdf";
+		link.download = 'nicholas_giamblanco_cv.pdf';
+		link.dispatchEvent(new MouseEvent('click'));
+		return "";
 	}
 }
 
 
+function term_game(showHelp=false) {
+	if(showHelp) {
+		return "A mini game to play ;) ";
+	} else {
+		//game_play = true;
+		//term.pause();
+		//console.log("???\n");
+        //display();		
+		return "";
+	}
+}
+
+function display() {
+    if (game_play== true) {
+    	term.echo("-->");
+        timeoutid=setTimeout(display, delay);
+    } else {
+    	console.log("Why am I not here...\n");
+    }
+}
+
+
+
+
+function term_whoami(showHelp=false) {
+ var  message =`
+Hi, I'm [[b;#66FF66;]Nicholas Giamblanco].
+I'm a computer engineer, focused on compilers for hardware-accelerators.
+My expertise is in the [[b;#FFF;]research] and [[b;#FFF;]design] of compilers for hardware-accelerators.
+My training focused on compilation methods for high-level synthesis (HLS) [[!;]http://legup.eecg.utoronto.ca/]. 
+
+
+Some facts:
+
+I'm from Arnprior, Ontario.
+I live in Toronto.
+`;
+
+	if(showHelp) {
+		return "Provides information about who I am.";
+	} else {
+		term.echo(message);
+		return "";
+	}
+}
+
+function term_exit(showHelp=false) {
+	if(showHelp) {
+		return "Exits the terminal";
+	} else {
+	    $('.tv').addClass('collapse');
+	    term.disable();
+	    return "";
+	}
+}	
+
+function term_help(showHelp=false) {
+	if(showHelp) {
+		return "Displays this."
+	} else {
+		term.echo("Available Commands: ");
+		for(var fun in allfunctions) {
+			var fn_name = allfunctions[fun].name;
+			term.echo("\t[[b;#FFF;]"+fn_name.substring(5, fn_name.length)+"]:\t\t"+allfunctions[fun](true));
+		}
+		return "";
+	}
+}
+
+
+//== Utility Function :P
 function populate_termfunctions(){ 
 	for (var i in window) {
 		if( (typeof window[i]).toString() == "function"){
 			fn_name = window[i].name;
-			if(fn_name.substring(0, Math.min(5, fn_name.length-1)) === "term_")
-	    		allfunctions.push(new String(fn_name));
+			if(fn_name.substring(0, Math.min(5, fn_name.length-1)) === "term_") {
+	    		allfunctions.push(window[i]);
+	    		completion_list.push(fn_name.substring(5, fn_name.length))
+			}
 	  	}
 	}
-	console.log(allfunctions)
 }
