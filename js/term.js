@@ -1,11 +1,16 @@
 var term;
 var allfunctions=[];
+var wrongcommands = 0;
 var completion_list = [];
 var game_play = false;
 var delay = 50;
 var timeoutid; 
 
 $(function() {
+
+	//Hide the game 
+	$("#game").hide();	
+
 	//Make sure to populate all the term-functions.
 	populate_termfunctions();
 
@@ -42,7 +47,13 @@ $(function() {
 				} else if(typeof fn === "object") {
 					tree(result);
 				} else {
-					term.error((new String(fn)) + ": " + command);	
+					term.error((new String(fn)) + ": " + command);
+					wrongcommands++;	
+					if(wrongcommands == 4) {
+						term.error("Everything okay? You've made a few terminal mistakes.")	
+						wrongcommands=0;
+					}
+
 				}
 	        } catch(e) {
 	            term.error(new String(e));
@@ -58,42 +69,6 @@ $(function() {
 			this.echo(signature, {finalize: a11y_hide, formatters: false});
 			this.echo('Type [[b;#fff;]help] to see all options.')
 	    },
-	    onClear: function() {
-
-	    },
-        keypress: function(e, term) {
-			// console.log(e);
-			// console.log(term);
-			// if (e.which == 100 && e.ctrlKey) {
-			// 	game_play = false;
-			// 	clearTimeout(timeoutid);
-			// 	console.log("clear...");				
-			// 	term.resume();
-			// 	term.clear();
-			// 	return;
-			// }
-
-		 //    switch(e.which) {
-		 //        case 119: // left
-		 //        console.log("up");
-		 //        break;
-
-		 //        case 97: // up
-		 //        console.log("left");
-		 //        break;
-
-		 //        case 115: // right
-		 //        console.log("down");
-		 //        break;
-
-		 //        case 100: // down
-		 //        console.log("right");
-		 //        break;
-
-		 //        default: return; // exit this handler for other keys
-		 //    }
-   //  e.preventDefault(); // prevent the default action (scroll / move caret)
-        },
 	    prompt: '[[b;#66FF66;]ngiambla@toronto][[b;#fff;]:][[b;#1E90FF;]~][[b;#fff;]$] '
 	});
 
@@ -116,6 +91,7 @@ $(function() {
 	    term.echo(treeify.asTree(obj, true, true));
 	}
 });
+
 
 
 // -----------------------------------------------------------------------
@@ -159,24 +135,10 @@ function term_game(showHelp=false) {
 	if(showHelp) {
 		return "A mini game to play ;) ";
 	} else {
-		//game_play = true;
-		//term.pause();
-		//console.log("???\n");
-        //display();		
-		return "";
+    	initializeGame();
+    	term.disable().hide();
 	}
 }
-
-function display() {
-    if (game_play== true) {
-    	term.echo("-->");
-        timeoutid=setTimeout(display, delay);
-    } else {
-    	console.log("Why am I not here...\n");
-    }
-}
-
-
 
 
 function term_whoami(showHelp=false) {
@@ -184,7 +146,8 @@ function term_whoami(showHelp=false) {
 Hi, I'm [[b;#66FF66;]Nicholas Giamblanco].
 I'm a computer engineer, focused on compilers for hardware-accelerators.
 My expertise is in the [[b;#FFF;]research] and [[b;#FFF;]design] of compilers for hardware-accelerators.
-My training focused on compilation methods for high-level synthesis (HLS) [[!;]http://legup.eecg.utoronto.ca/]. 
+My training focused on compilation methods for high-level synthesis (HLS) [[b;!;]legup.eecg.utoronto.ca]. 
+
 
 
 Some facts:
@@ -237,3 +200,5 @@ function populate_termfunctions(){
 	  	}
 	}
 }
+
+
