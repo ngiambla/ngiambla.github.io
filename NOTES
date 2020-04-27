@@ -1,0 +1,4 @@
+== To run this locally...
+* Navigate to the directory where this file (i.e., NOTES) exists and run
+    [ruby -run -e httpd . -p 808]
+in the terminal.

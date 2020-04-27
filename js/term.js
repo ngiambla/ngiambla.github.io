@@ -172,7 +172,30 @@ function term_exit(showHelp=false) {
 	    term.disable();
 	    return "";
 	}
+}
+
+// NetBSD source code style guide example:
+// Usage: program [-aDde] [-f | -g] [-n number] [-b b_arg | -c c_arg] req1 req2 [opt1 [opt2]]
+// "program" should be called with:
+
+// options without operands: a, D, d, e (any of which may be omitted). Note that in this case some parameters are case-sensitive
+// exclusive options: f, g (denoted by the vertical bar)
+// options with operands: n
+// exclusive options with operands: b, c
+// required arguments: req1, req2
+// optional argument opt1, which may be used with or without opt2 (marked optional within the group by using another set of square brackets)
+// optional argument opt2, which requires opt1
+function term_nc(showHelp=false) {
+	var helpstring = "\tNC Compiler: Compile Python to NC-Intermediate Language."
+	if(showHelp) {
+		return helpstring;
+	} else {
+		helpstring += "\nUsage: nc program.py"
+		term.echo(helpstring+"\n[[b;#66FF66;]In development...]");
+	    return "";
+	}
 }	
+
 
 function term_help(showHelp=false) {
 	if(showHelp) {
