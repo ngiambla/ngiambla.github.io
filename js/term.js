@@ -145,15 +145,17 @@ function term_whoami(showHelp=false) {
  var  message =`
 Hi, I'm [[b;#66FF66;]Nicholas Giamblanco].
 I'm a computer engineer, focused on compilers for hardware-accelerators.
-My expertise is in the [[b;#FFF;]research] and [[b;#FFF;]design] of compilers for hardware-accelerators.
+
+My expertise is in the [[b;#FFF;]research] and [[b;#FFF;]design] in this field.
 My training focused on compilation methods for high-level synthesis (HLS) [[b;!;]legup.eecg.utoronto.ca]. 
 
-
+You can find some of my projects at [[b;!;]github.com/ngiambla]
 
 Some facts:
 
 I'm from Arnprior, Ontario.
-I live in Toronto.
+I live in Toronto, Ontario.
+
 `;
 
 	if(showHelp) {
@@ -170,6 +172,7 @@ function term_exit(showHelp=false) {
 	} else {
 	    $('.tv').addClass('collapse');
 	    term.disable();
+		window.location.href = 'https://github.com/ngiambla';	    	    
 	    return "";
 	}
 }
@@ -191,7 +194,7 @@ function term_nc(showHelp=false) {
 		return helpstring;
 	} else {
 		helpstring += "\nUsage: nc program.py"
-		term.echo(helpstring+"\n[[b;#66FF66;]In development...]");
+		term.echo(helpstring+"\n\t[[b;#66FF66;]Coming soon...]\n");
 	    return "";
 	}
 }	

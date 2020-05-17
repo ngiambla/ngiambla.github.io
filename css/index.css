@@ -101,7 +101,6 @@ https://blog.carbonfive.com/2015/01/07/vintage-terminal-effect-in-css3/
 }
 
 #game {
-    width: calc(15 * 20px);
     margin: auto;
     position: absolute;
     left: 0;

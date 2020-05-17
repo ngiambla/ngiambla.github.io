@@ -4,6 +4,7 @@ var canvas;
 var context;
 
 var grid = 16;
+var cellsize=grid;
 var count = 0;
 
 var aniframeid;
@@ -32,17 +33,7 @@ function initializeGame() {
   canvas = document.getElementById('game');
   context = canvas.getContext('2d');
   context.font = '25px Ubuntu Mono';
-  // context.fillStyle = 'blue';
-  // for(var i = 0; i < canvas.height; i=i+25) {
-  //   context.fillText("#", i, 25);    
-  //   context.fillText("#", 0, i);    
-  //   context.fillText("#", i, canvas.height-25);    
-  //   context.fillText("#", canvas.height-25, i);     
-  // }
   $("#game").show();
-  // start the game
-  //context.fillStyle = 'orange';
-  //context.fillRect(16,25,canvas.width-64,canvas.height-75);
   aniframeid=requestAnimationFrame(loop);
 }
 
@@ -54,7 +45,7 @@ function genRandInt(min, max) {
 function loop() {
   aniframeid = requestAnimationFrame(loop);
 
-  // slow game loop to 15 fps instead of 60 (60/15 = 4)
+  // Approximate game loop to 15 fps = (60fps/15fps = 4)
   if (++count < 4) {
     return;
   }
@@ -67,19 +58,20 @@ function loop() {
   snake.y += snake.dy;
 
   // wrap snake position horizontally on edge of screen
-  if (snake.x < 16) {
+  if (snake.x <= 0) {
     snake.x = canvas.width - grid;
   }
+
   else if (snake.x >= canvas.width) {
-    snake.x = 16;
+    snake.x = 0;
   }
   
   // wrap snake position vertically on edge of screen
-  if (snake.y < 16) {
+  if (snake.y <= grid*2) {
     snake.y = canvas.height - grid;
   }
   else if (snake.y >= canvas.height) {
-    snake.y = 16;
+    snake.y = 0;
   }
 
   // keep track of where snake has been. front of the array is always the head
@@ -90,24 +82,29 @@ function loop() {
     snake.cells.pop();
   }
 
+  // draw score
+  context.fillStyle = 'white';
+  context.fillText("Score: "+(snake.cells.length).toString(), cellsize, cellsize);
+
+
   // draw apple
   context.fillStyle = 'green';
-  context.fillText("$", apple.x, apple.y);
+  context.fillText("$", apple.x, apple.y, cellsize);
 
   // draw snake one cell at a time
   context.fillStyle = 'red';
   snake.cells.forEach(function(cell, index) {
     
     // drawing 1 px smaller than the grid creates a grid effect in the snake body so you can see how long it is
-    context.fillText("@", cell.x, cell.y);  
+    context.fillText("@", cell.x, cell.y, cellsize);  
 
     // snake ate apple
     if (cell.x === apple.x && cell.y === apple.y) {
       snake.maxCells++;
 
       // canvas is 400x400 which is 25x25 grids 
-      apple.x = genRandInt(0, 25) * grid;
-      apple.y = genRandInt(0, 25) * grid;
+      apple.x = genRandInt(1, cellsize) * grid;
+      apple.y = genRandInt(4, cellsize) * grid;
     }
 
     // check collision with all cells after this one (modified bubble sort)
@@ -122,8 +119,8 @@ function loop() {
         snake.dx = grid;
         snake.dy = 0;
 
-        apple.x = genRandInt(0, 25) * grid;
-        apple.y = genRandInt(0, 25) * grid;
+        apple.x = genRandInt(1, cellsize) * grid;
+        apple.y = genRandInt(4, cellsize) * grid;
       }
     }
   });
