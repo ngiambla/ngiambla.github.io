@@ -3,18 +3,21 @@
 var canvas;
 var context;
 
-var grid = 16;
-var cellsize=grid;
-var count = 0;
+var grid = 0;
+var cellsize = 0;
+var hiscore = 0;
 
 var aniframeid;
+
+var midx;
+var midy;
   
 var snake = {
-  x: 160,
-  y: 160,
+  x: 0,
+  y: 0,
   
   // snake velocity. moves one grid length every frame in either the x or y direction
-  dx: grid,
+  dx: 0,
   dy: 0,
   
   // keep track of all grids the snake body occupies
@@ -24,17 +27,54 @@ var snake = {
   maxCells: 4
 };
 var apple = {
-  x: 320,
-  y: 320
+  x: 0,
+  y: 0
 };
+
+
+var stop = false;
+var frameCount = 0;
+var fpsInterval, startTime, now, then, elapsed;
+
 
 
 function initializeGame() {
   canvas = document.getElementById('game');
+  canvas.width = document.body.clientWidth; //document.width is obsolete
+  canvas.height = document.body.clientHeight; //document.height is obsolete  
+  midx = Math.floor(canvas.width/2);
+  midy = Math.floor(canvas.height/2);
+  
   context = canvas.getContext('2d');
   context.font = '25px Ubuntu Mono';
+  if(grid === 0)
+    grid = Math.max(context.measureText("@").width, context.measureText("$").width);
+  cellsize=grid;
+  console.log("GridSize: "+cellsize);
+  apple.x = genRandInt(1, cellsize) * grid;
+  apple.y = genRandInt(1, cellsize) * grid; 
+  
+  snake.x = midx;
+  snake.y = midy;
+  snake.dx = cellsize;
+  snake.dy = 0;
+  snake.cells = [];
+  snake.maxCells = 4;
+
   $("#game").show();
+
+  // 25 FPS
+  fpsInterval = 1000/25;
+  then = Date.now();
+  startTime = then;
+  console.log(startTime);  
+  
   aniframeid=requestAnimationFrame(loop);
+}
+
+function intersect(x1, y1, width1, x2, y2, width2) {
+  return (Math.abs(x1 - x2) * 2 < (width1 + width2)) &&
+         (Math.abs(y1 - y2) * 2 < (width1 + width2));
 }
 
 function genRandInt(min, max) {
@@ -45,10 +85,17 @@ function genRandInt(min, max) {
 function loop() {
   aniframeid = requestAnimationFrame(loop);
 
-  // Approximate game loop to 15 fps = (60fps/15fps = 4)
-  if (++count < 4) {
+  // calc elapsed time since last loop
+  now = Date.now();
+  elapsed = now - then;
+
+  // if enough time has elapsed, draw the next frame
+
+  if (elapsed <= fpsInterval) {
     return;
   }
+
+  then = now - (elapsed % fpsInterval);
 
   count = 0;
   context.clearRect(0,0,canvas.width,canvas.height);
@@ -67,9 +114,10 @@ function loop() {
   }
   
   // wrap snake position vertically on edge of screen
-  if (snake.y <= grid*2) {
+  if (snake.y <= 0) {
     snake.y = canvas.height - grid;
   }
+
   else if (snake.y >= canvas.height) {
     snake.y = 0;
   }
@@ -84,7 +132,11 @@ function loop() {
 
   // draw score
   context.fillStyle = 'white';
-  context.fillText("Score: "+(snake.cells.length).toString(), cellsize, cellsize);
+  context.fillText("[ESC] to end.", 0, cellsize);
+  if(snake.cells.length > hiscore) {
+    hiscore = snake.cells.length;
+  }
+  context.fillText("Score: "+(snake.cells.length).toString()+" High Score: "+hiscore.toString(), 0, cellsize+cellsize*2);
 
 
   // draw apple
@@ -98,29 +150,27 @@ function loop() {
     // drawing 1 px smaller than the grid creates a grid effect in the snake body so you can see how long it is
     context.fillText("@", cell.x, cell.y, cellsize);  
 
-    // snake ate apple
-    if (cell.x === apple.x && cell.y === apple.y) {
-      snake.maxCells++;
 
-      // canvas is 400x400 which is 25x25 grids 
-      apple.x = genRandInt(1, cellsize) * grid;
-      apple.y = genRandInt(4, cellsize) * grid;
+    if (intersect(cell.x, cell.y, cellsize, apple.x, apple.y, cellsize)) {
+      snake.maxCells++;
+      apple.x = genRandInt(1, midx*2);
+      apple.y = genRandInt(1, midy*2);      
     }
 
     // check collision with all cells after this one (modified bubble sort)
     for (var i = index + 1; i < snake.cells.length; i++) {
       
       // snake occupies same space as a body part. reset game
-      if (cell.x === snake.cells[i].x && cell.y === snake.cells[i].y) {
-        snake.x = 160;
-        snake.y = 160;
+      if (intersect(cell.x, cell.y, cellsize, snake.cells[i].x, snake.cells[i].y, cellsize)) {
+        snake.x = midx;
+        snake.y = midy;
         snake.cells = [];
         snake.maxCells = 4;
         snake.dx = grid;
         snake.dy = 0;
 
         apple.x = genRandInt(1, cellsize) * grid;
-        apple.y = genRandInt(4, cellsize) * grid;
+        apple.y = genRandInt(1, cellsize) * grid;
       }
     }
   });
