@@ -1,13 +1,12 @@
 # ngiambla.github.io
 
-A personal site that is a real Linux machine: Alpine Linux (i386) boots in the
-browser under the [v86](https://github.com/copy/v86) emulator, wired to an
+A personal site that runs Alpine Linux (i386) in the browser under the [v86](https://github.com/copy/v86) emulator, wired to an
 xterm.js terminal. The first visit cold-boots; afterwards the machine is saved in
 the browser (IndexedDB) and resumes where the visitor left off, until they run
 `reboot` or clear site data. A deploy with a new image also forces a fresh boot.
 
 Inside: the bio, CV, papers and projects as files in `~`, `gcc`, and `explore`,
-an ASCII first-person walk around a wafer-scale chip (`linux/explore/`).
+a first-person ASCII maze (`linux/explore/`).
 
 ## Layout
 

@@ -4,7 +4,7 @@
   "profile": {
     "name": "Nicholas V. Giamblanco",
     "handle": "ngiambla",
-    "host": "wse",
+    "host": "coquitlam",
     "title": "Compiler Engineer",
     "location": "Coquitlam, British Columbia, Canada",
     "hometown": "Arnprior, Ontario",
@@ -12,10 +12,10 @@
     "site": "https://ngiambla.github.io/",
     "summary": [
       "I'm a compiler engineer who builds languages, compilers and tooling for hardware accelerators.",
-      "Today I'm a Senior Member of Technical Staff in Advanced Tech. R&D at Cerebras Systems, where I design a data-flow language and compiler for the Wafer-Scale Engine (WSE).",
+      "These days I design data-flow languages, compilers and debuggers that make unusual hardware easier to program.",
       "My training is in high-level synthesis (HLS): my M.A.Sc. at the University of Toronto, with Prof. Jason H. Anderson, focused on dynamic memory allocation for HLS in LegUp."
     ],
-    "interests": ["compilers (LLVM, MLIR, CIRCT)", "data-flow and wafer-scale computing", "high-level synthesis", "hardware verification and simulation", "debuggers and developer tooling"]
+    "interests": ["compilers (LLVM, MLIR, CIRCT)", "data-flow computing", "high-level synthesis", "hardware verification and simulation", "debuggers and developer tooling"]
   },
   "experience": [
     {

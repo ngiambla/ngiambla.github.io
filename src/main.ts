@@ -1,4 +1,4 @@
-// Boots a real Linux (Alpine i386 under the v86 emulator) into an xterm.js
+// Boots Alpine Linux (i386, under the v86 emulator) into an xterm.js
 // terminal. The first visit is a cold boot; after that the machine is
 // snapshotted into IndexedDB and resumed on later visits until the visitor
 // runs `reboot` or clears site data.
@@ -50,7 +50,7 @@ async function main() {
     term.write(saved.screen);
     initial_state = { buffer: await state.gunzip(saved.machine) };
   } else {
-    term.writeln(dim("Booting Linux in your browser (v86, Alpine i386). The first boot takes a little while;"));
+    term.writeln(dim("Booting Alpine Linux (i386) with v86. The first boot takes a little while;"));
     term.writeln(dim("after that this machine is saved here and resumes instantly. Type `reboot` to start over.\r\n"));
   }
 

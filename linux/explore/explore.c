@@ -1,12 +1,12 @@
 /*
- * explore: walk around a wafer-scale chip, rendered in ASCII.
+ * explore: a first-person maze, rendered in ASCII.
  *
  * A classic grid raycaster (one ray per terminal column) drawn with
  * ANSI escape codes. Walls are shaded by distance, the floor and ceiling
  * fade into the dark, and a minimap sits in the corner.
  *
- * Scattered across the wafer are glowing cores ('P' on the map). Each one
- * holds a paper; walk onto it to read the title. Find them all.
+ * The maze is different every run. Notes are pinned in its dead ends
+ * ('P' on the map); walk onto one to read a paper title. Find them all.
  *
  *   W/S or Up/Down     move        A/D or Left/Right   turn
  *   Q/E                strafe      M                   toggle map
@@ -27,11 +27,11 @@
 #include <time.h>
 #include <unistd.h>
 
-#define MAP_W 32
-#define MAP_H 32
+#define MAP_W 31   /* odd, so cells sit on odd coordinates */
+#define MAP_H 31
 
-/* '#' wafer edge, 'C' compute core block, 'R' router block, '.' fabric,
- * 'P' paper core (walkable), '@' start. Generated at startup. */
+/* '#' outer wall, 'C' / 'R' inner walls (two colours), '.' corridor,
+ * 'P' paper note (walkable). Generated at startup. */
 static char map[MAP_H][MAP_W + 1];
 
 static const char *papers[] = {
@@ -53,7 +53,7 @@ static volatile sig_atomic_t resized = 1, quit;
 static struct termios saved;
 static char *frame;
 static size_t frame_len, frame_cap;
-static const char *message = "Find the 7 paper cores (P on the map).";
+static const char *message = "Find the 7 papers pinned in the dead ends (P on the map).";
 static double message_until;
 
 /* ---- terminal --------------------------------------------------------- */
@@ -99,29 +99,47 @@ static void outs(const char *s) { out(s, strlen(s)); }
 static unsigned rng = 0x5eed1234;
 static unsigned rnd(void) { rng ^= rng << 13; rng ^= rng >> 17; rng ^= rng << 5; return rng; }
 
-static void build_wafer(void)
+static void build_maze(void)
 {
-    double c = (MAP_W - 1) / 2.0, r = MAP_W / 2.0 - 1;
+    /* recursive backtracker over the odd cells */
+    static int stack[MAP_W * MAP_H][2];
+    int sp = 0;
     for (int y = 0; y < MAP_H; y++) {
-        for (int x = 0; x < MAP_W; x++) {
-            double d = hypot(x - c, y - c);
-            char ch = '.';
-            if (d > r) ch = '#';                                   /* off-wafer */
-            else if (x % 4 == 2 && y % 4 == 2) ch = (rnd() % 3) ? 'C' : 'R';
-            else if (x % 4 == 2 && y % 4 == 3 && rnd() % 4 == 0) ch = 'C';
-            map[y][x] = ch;
-        }
+        for (int x = 0; x < MAP_W; x++)
+            map[y][x] = (x == 0 || y == 0 || x == MAP_W - 1 || y == MAP_H - 1) ? '#' : (rnd() % 4 ? 'C' : 'R');
         map[y][MAP_W] = 0;
     }
-    for (int i = 0; i < NPAPERS; i++) {
-        int x, y;
-        do { x = rnd() % MAP_W; y = rnd() % MAP_H; }
-        while (map[y][x] != '.' || hypot(x - c, y - c) < 3);
-        map[y][x] = 'P';
-        paper_x[i] = x; paper_y[i] = y;
+    map[1][1] = '.';
+    stack[sp][0] = 1; stack[sp][1] = 1; sp++;
+    static const int dx[] = { 2, -2, 0, 0 }, dy[] = { 0, 0, 2, -2 };
+    while (sp) {
+        int cx = stack[sp - 1][0], cy = stack[sp - 1][1], opts[4], n = 0;
+        for (int d = 0; d < 4; d++) {
+            int nx = cx + dx[d], ny = cy + dy[d];
+            if (nx > 0 && ny > 0 && nx < MAP_W - 1 && ny < MAP_H - 1 && map[ny][nx] != '.') opts[n++] = d;
+        }
+        if (!n) { sp--; continue; }
+        int d = opts[rnd() % n];
+        map[cy + dy[d] / 2][cx + dx[d] / 2] = '.';
+        map[cy + dy[d]][cx + dx[d]] = '.';
+        stack[sp][0] = cx + dx[d]; stack[sp][1] = cy + dy[d]; sp++;
     }
-    px = c + 0.5; py = c + 0.5; dir = 0;
-    map[(int)py][(int)px] = '.';
+    /* knock out some walls so there are loops, not just one path */
+    for (int i = 0; i < MAP_W * MAP_H / 12; i++) {
+        int x = 1 + rnd() % (MAP_W - 2), y = 1 + rnd() % (MAP_H - 2);
+        if ((x + y) % 2 == 1 && map[y][x] != '#') map[y][x] = '.';
+    }
+    /* pin the papers in dead ends (cells with three walls), far from the start */
+    int placed = 0;
+    for (int tries = 0; placed < NPAPERS && tries < 100000; tries++) {
+        int x = 1 + 2 * (rnd() % ((MAP_W - 1) / 2)), y = 1 + 2 * (rnd() % ((MAP_H - 1) / 2));
+        int walls = (map[y][x - 1] != '.') + (map[y][x + 1] != '.') + (map[y - 1][x] != '.') + (map[y + 1][x] != '.');
+        if (map[y][x] != '.' || x + y < 8 || (walls < 3 && tries < 50000)) continue;
+        map[y][x] = 'P';
+        paper_x[placed] = x; paper_y[placed] = y; placed++;
+    }
+    px = 1.5; py = 1.5;
+    dir = map[1][2] == '.' ? 0 : M_PI / 2;   /* face down the open corridor */
 }
 static int solid(int x, int y)
 {
@@ -183,8 +201,8 @@ static void render(void)
                 if (!side[x]) color += 60;
                 if (kind[x] == '#') color = side[x] ? 90 : 37;
             } else if (y >= bot) {
-                /* project the floor cell back into the world and draw the
-                 * wafer's grid where the point lands near a cell edge */
+                /* project the floor back into the world and draw tile
+                 * seams where the point lands near a cell edge */
                 double rd = view_h * aspect / (y + 0.5 - view_h / 2.0);
                 double a = dir + (x / (double)cols - 0.5) * fov;
                 double wd = rd / cos(a - dir);
@@ -210,27 +228,31 @@ static void render(void)
         if (y < view_h - 1) outs("\r\n");
     }
 
-    /* minimap, top-left */
+    /* minimap, top-left: two map rows per line using half blocks */
     if (show_map && rows > MAP_H / 2 + 4 && cols > MAP_W + 10) {
         for (int y = 0; y < MAP_H; y += 2) {
             char esc[32];
-            snprintf(esc, sizeof esc, "\x1b[%d;2H\x1b[0m", y / 2 + 2);
+            snprintf(esc, sizeof esc, "\x1b[%d;2H", y / 2 + 2);
             outs(esc);
             for (int x = 0; x < MAP_W; x++) {
-                char ch = map[y][x];
-                if ((int)px == x && ((int)py == y || (int)py == y + 1)) outs("\x1b[1;33m@\x1b[0m");
-                else if (map[y + 1][x] == 'P' || ch == 'P') outs("\x1b[1;35mP\x1b[0m");
-                else if (ch == '#') outs(" ");
-                else if (ch == 'C' || ch == 'R') outs("\x1b[32m\xe2\x96\xaa\x1b[0m");
-                else outs("\x1b[2m\xc2\xb7\x1b[0m");
+                int y2 = y + 1 < MAP_H ? y + 1 : y;
+                int me = (int)px == x && ((int)py == y || (int)py == y2);
+                int note = map[y][x] == 'P' || map[y2][x] == 'P';
+                int top = solid(x, y), bot = y + 1 < MAP_H ? solid(x, y + 1) : 0;
+                if (me) outs("\x1b[0;1;33m@");
+                else if (note) outs("\x1b[0;1;35mP");
+                else outs(top && bot ? "\x1b[0;32m\xe2\x96\x88" : top ? "\x1b[0;32m\xe2\x96\x80"
+                          : bot ? "\x1b[0;32m\xe2\x96\x84" : "\x1b[0;40m ");
             }
+            outs("\x1b[0m");
         }
+        cur = -1;
     }
 
     /* status bar */
     char bar[512];
     const char *msg = now() < message_until ? message : "WASD/arrows move · Q/E strafe · M map · X quit";
-    int n = snprintf(bar, sizeof bar, "\x1b[%d;1H\x1b[0;7m wafer explorer \x1b[0;1m  papers %d/%d  \x1b[0m %s",
+    int n = snprintf(bar, sizeof bar, "\x1b[%d;1H\x1b[0;7m explore \x1b[0;1m  papers %d/%d  \x1b[0m %s",
                      rows, nfound, NPAPERS, msg);
     out(bar, n);
     outs("\x1b[K");
@@ -249,7 +271,7 @@ static void try_move(double dx, double dy)
             found[i] = 1;
             nfound++;
             map[paper_y[i]][paper_x[i]] = '.';
-            message = nfound == NPAPERS ? "All papers found! The whole list: cat ~/papers/README" : papers[i];
+            message = nfound == NPAPERS ? "All papers found! The full list: cat ~/papers/README" : papers[i];
             message_until = now() + (nfound == NPAPERS ? 1e9 : 6);
         }
     }
@@ -283,7 +305,7 @@ int main(void)
 {
     if (!isatty(0) || !isatty(1)) { fprintf(stderr, "explore: needs a terminal\n"); return 1; }
     rng ^= (unsigned)time(NULL);
-    build_wafer();
+    build_maze();
     signal(SIGWINCH, on_signal);
     signal(SIGINT, on_signal);
     signal(SIGTERM, on_signal);

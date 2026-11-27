@@ -9,7 +9,7 @@ RUN apk add --no-cache openrc alpine-base agetty linux-virt linux-firmware-none 
 # ---- user, hostname, login ------------------------------------------------
 ARG USER=ngiambla
 RUN adduser -D -s /bin/ash "$USER" && passwd -d "$USER" && passwd -d root \
- && echo wse > /etc/hostname && echo 'hostname="wse"' > /etc/conf.d/hostname
+ && echo coquitlam > /etc/hostname && echo 'hostname="coquitlam"' > /etc/conf.d/hostname
 # Only the serial console is wired to the page: drop the VGA gettys,
 # autologin on ttyS0, and listen for terminal resizes on ttyS1.
 RUN sed -i '/^tty[0-9]/d' /etc/inittab \

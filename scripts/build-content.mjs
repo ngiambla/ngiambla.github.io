@@ -95,8 +95,8 @@ add("README", [
   "  ls papers/           publications (cat any file)",
   "  ls projects/         things I've built",
   "  open vlang           open a project or paper's link in a new tab",
-  "  explore              walk around a wafer-scale chip (source: ~/explore)",
-  "  gcc hello.c          yes, a real C compiler",
+  "  explore              a first-person ASCII maze (source: ~/explore)",
+  "  gcc hello.c          compile and run C",
   "",
   `Last updated ${site.updated}.`,
 ].join("\n"));
