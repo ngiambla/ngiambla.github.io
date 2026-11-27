@@ -1,0 +1,9 @@
+#!/bin/sh
+# The page writes "ROWS COLS" lines to the second serial port whenever the
+# browser window changes size; apply them to the console tty (the kernel then
+# sends SIGWINCH to whatever is running, so vim and the game redraw).
+stty -F /dev/ttyS1 115200 -echo icanon 2>/dev/null
+while read -r rows cols; do
+    case "$rows$cols" in *[!0-9]*|"") continue;; esac
+    stty -F /dev/ttyS0 rows "$rows" cols "$cols"
+done < /dev/ttyS1

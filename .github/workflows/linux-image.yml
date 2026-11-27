@@ -1,0 +1,34 @@
+# Builds the browser Linux image on every branch push that touches it and
+# publishes the result to the `linux-image` branch, so it can be inspected
+# and tested without a full deploy.
+name: Build Linux image
+
+on:
+  push:
+    branches-ignore: [linux-image]
+    paths: ["linux/**", "content/**", "scripts/**", ".github/workflows/linux-image.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: pip install zstandard
+      - run: scripts/build-linux.sh
+      - name: Publish to the linux-image branch
+        run: |
+          cd public/linux
+          git init -q -b linux-image
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          echo "Built from ${GITHUB_SHA} on ${GITHUB_REF_NAME}" > BUILD
+          git add -A
+          git commit -qm "Linux image from ${GITHUB_SHA::7} (${GITHUB_REF_NAME})"
+          git push -f "https://x-access-token:${{ github.token }}@github.com/${GITHUB_REPOSITORY}.git" linux-image
