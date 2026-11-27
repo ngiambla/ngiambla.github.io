@@ -13,7 +13,7 @@ import * as state from "./state";
 
 const MEMORY = 128 * 1024 * 1024;
 const AUTOSAVE_MS = 30_000;
-const PROMPT_MARK = "@wse:";          // seen once the shell is up
+const PROMPT_MARK = "ngiambla@";      // the shell prompt: login is done
 const dim = (s: string) => `\x1b[2m${s}\x1b[0m`;
 
 const term = new Terminal({

@@ -131,8 +131,6 @@ static int solid(int x, int y)
 }
 
 /* ---- rendering -------------------------------------------------------- */
-static const char shade_wall[] = "@%#*+=-:. ";
-static const char shade_floor[] = "#..    ";
 
 static void render(void)
 {
@@ -173,36 +171,32 @@ static void render(void)
         for (int x = 0; x < cols; x++) {
             double h = view_h / dist[x] * aspect * 2;
             double top = (view_h - h) / 2, bot = (view_h + h) / 2;
-            int color; char ch;
+            int color; const char *glyph;
             if (y >= top && y < bot) {
-                double t = dist[x] / 12.0 + side[x] * 0.08;
-                int i = (int)(t * (sizeof shade_wall - 2));
-                if (i > (int)sizeof shade_wall - 2) i = sizeof shade_wall - 2;
-                ch = shade_wall[i];
-                color = kind[x] == '#' ? 90 : kind[x] == 'R' ? 36 : 32;
-                if (dist[x] < 4 && kind[x] != '#') color += 60;   /* bright when close */
+                /* solid blocks up close, fading to stipple in the distance;
+                 * the two wall orientations get different brightness */
+                static const char *wall[] = { "\xe2\x96\x88", "\xe2\x96\x93", "\xe2\x96\x92", "\xe2\x96\x91", ":", "." };
+                double d = dist[x];
+                int i = d < 1.5 ? 0 : d < 3 ? 1 : d < 5 ? 2 : d < 8 ? 3 : d < 12 ? 4 : 5;
+                glyph = wall[i];
+                color = kind[x] == '#' ? 37 : kind[x] == 'R' ? 36 : 32;
+                if (!side[x]) color += 60;
+                if (kind[x] == '#') color = side[x] ? 90 : 37;
             } else if (y >= bot) {
-                /* project the floor cell back into the world: traces on the
-                 * wafer are drawn where the point lands near a grid line */
+                /* project the floor cell back into the world and draw the
+                 * wafer's grid where the point lands near a cell edge */
                 double rd = view_h * aspect / (y + 0.5 - view_h / 2.0);
                 double a = dir + (x / (double)cols - 0.5) * fov;
                 double wd = rd / cos(a - dir);
                 double wx = px + cos(a) * wd, wy = py + sin(a) * wd;
                 double fx = wx - floor(wx), fy = wy - floor(wy);
-                double w = 0.05 + 0.02 * rd;          /* thicker lines far away hide aliasing */
-                int line_x = fx < w || fx > 1 - w, line_y = fy < w || fy > 1 - w;
-                double t = rd / 10.0;
-                int i = (int)(t * (sizeof shade_floor - 1));
-                if (i > (int)sizeof shade_floor - 2) i = sizeof shade_floor - 2;
-                if ((line_x || line_y) && rd < 9) {
-                    ch = line_x && line_y ? '+' : line_x ? '|' : '-';
-                    color = rd < 4 ? 32 : 90;
-                } else {
-                    ch = shade_floor[i] == '#' ? '.' : ' ';
-                    color = 34;
-                }
+                int on_line = (fx < 0.06 || fx > 0.94 || fy < 0.06 || fy > 0.94);
+                if (on_line && rd < 5) { glyph = "+"; color = 32; }
+                else if (rd < 6)       { glyph = "."; color = rd < 2.5 ? 34 : 94; }
+                else                   { glyph = " "; color = 34; }
             } else {
-                ch = (y < view_h / 6 && (x * 7 + y * 13) % 23 == 0) ? '.' : ' ';
+                unsigned hsh = (unsigned)(x * 73856093u) ^ (unsigned)(y * 19349663u);
+                glyph = (y < view_h / 3 && hsh % 37 == 0) ? "." : " ";
                 color = 90;
             }
             if (color != cur) {
@@ -211,7 +205,7 @@ static void render(void)
                 outs(esc);
                 cur = color;
             }
-            out(&ch, 1);
+            outs(glyph);
         }
         if (y < view_h - 1) outs("\r\n");
     }
