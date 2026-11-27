@@ -23,4 +23,6 @@ mkdir -p "$OUT/flat"
 python3 linux/v86-tools/fs2json.py --zstd --out "$OUT/fs.json" "$TAR"
 python3 linux/v86-tools/copy-to-sha256.py --zstd "$TAR" "$OUT/flat"
 rm -f "$TAR"
+# Image id: saved sessions from an older image boot fresh instead of resuming.
+sha256sum "$OUT/fs.json" | cut -c1-16 > "$OUT/version.txt"
 echo "linux: $(ls "$OUT/flat" | wc -l) files, $(du -sh "$OUT" | cut -f1) in $OUT"

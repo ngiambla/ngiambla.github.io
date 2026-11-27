@@ -5,7 +5,6 @@
 //
 // Output:
 //   generated/home/<handle>/...   real files (packed into the Linux image)
-//   public/home.json              { path: contents } for the browser
 import { readFileSync, writeFileSync, mkdirSync, rmSync, copyFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -79,6 +78,15 @@ add("papers/README", index.join("\n"));
 for (const pr of site.projects) add(`projects/${slug(pr.name)}.txt`, `${pr.name}\n${rule("-")}\n${wrap(pr.about)}\n\n${pr.url}`);
 
 // ---- README (motd) -------------------------------------------------------
+add("hello.c", [
+  "#include <stdio.h>",
+  "",
+  "int main(void) {",
+  `    printf("Hello from ${p.handle}.github.io!\\n");`,
+  "    return 0;",
+  "}",
+].join("\n"));
+
 add("README", [
   `Welcome! I'm ${p.name.split(" ")[0]}, a ${p.title.toLowerCase()}.`,
   "",
@@ -86,6 +94,9 @@ add("README", [
   "  cat cv.txt           experience and education",
   "  ls papers/           publications (cat any file)",
   "  ls projects/         things I've built",
+  "  open vlang           open a project or paper's link in a new tab",
+  "  explore              walk around a wafer-scale chip (source: ~/explore)",
+  "  gcc hello.c          yes, a real C compiler",
   "",
   `Last updated ${site.updated}.`,
 ].join("\n"));
@@ -99,5 +110,4 @@ for (const [rel, body] of Object.entries(files)) {
   writeFileSync(dest, body);
 }
 copyFileSync(join(root, "public/cv.pdf"), join(outHome, "cv.pdf"));
-writeFileSync(join(root, "public/home.json"), JSON.stringify({ user: p.handle, host: p.host, files }, null, 0));
 console.log(`content: wrote ${Object.keys(files).length} files to generated/home/${p.handle}`);

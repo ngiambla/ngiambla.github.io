@@ -3,6 +3,7 @@
 # browser window changes size; apply them to the console tty (the kernel then
 # sends SIGWINCH to whatever is running, so vim and the game redraw).
 stty -F /dev/ttyS1 115200 -echo icanon 2>/dev/null
+chmod 666 /dev/ttyS1   # lets `open` and `reboot` talk to the page
 while read -r rows cols; do
     case "$rows$cols" in *[!0-9]*|"") continue;; esac
     stty -F /dev/ttyS0 rows "$rows" cols "$cols"
