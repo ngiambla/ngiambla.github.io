@@ -1,0 +1,18 @@
+#!/bin/sh
+# open FILE|PROJECT|URL: opens a link in a new browser tab. For a file, opens
+# the first URL inside it (e.g. a paper's code link); cv.pdf opens the PDF.
+t=${1:?usage: open FILE|PROJECT|URL}
+case "$t" in
+    http://*|https://*) url=$t ;;
+    *cv.pdf)            url=/cv.pdf ;;
+    *)
+        for f in "$t" "$t.txt" ~/projects/"$t".txt ~/papers/"$t"; do
+            [ -f "$f" ] && { file=$f; break; }
+        done
+        [ -n "$file" ] || { echo "open: $t: no such file or project" >&2; exit 1; }
+        url=$(grep -o 'https\?://[^ ]*' "$file" | head -n1)
+        [ -n "$url" ] || { echo "open: no link in $file" >&2; exit 1; }
+        ;;
+esac
+echo "opening $url"
+printf 'OPEN %s\n' "$url" > /dev/ttyS1

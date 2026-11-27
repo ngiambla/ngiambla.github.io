@@ -1,0 +1,6 @@
+#!/bin/sh
+# Forget this machine's saved state in the browser and boot fresh.
+echo "Rebooting: the saved session is wiped and Linux boots from scratch."
+sync
+printf 'REBOOT\n' > /dev/ttyS1
+sleep 30

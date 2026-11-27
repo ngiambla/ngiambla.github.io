@@ -5,16 +5,20 @@ body {
     margin: 0;
     background: black;
 }
+/* xterm's fit addon sizes to the parent's content box, so the gutter is an
+ * inset rather than padding */
 #term {
-    height: 100vh;
+    position: absolute;
+    inset: 12px 16px;
 }
+#term .xterm-viewport { background: transparent !important; }
 :root {
     --background: #031e11;
     --size: 1.5;
 }
 
 /* glow */
-.terminal {
+#term .xterm-rows {
     text-shadow: 0 0.2rem 1rem #0c7b46;
 }
 /* based on
@@ -79,6 +83,8 @@ https://blog.carbonfive.com/2015/01/07/vintage-terminal-effect-in-css3/
 .tv {
     height: 100vh;
     position: relative;
+    overflow: hidden;
+    background: var(--background);
 }
 .tv.collapse {
     animation: size 2s ease-out;
@@ -100,16 +106,6 @@ https://blog.carbonfive.com/2015/01/07/vintage-terminal-effect-in-css3/
     animation-fill-mode: forwards;
 }
 
-#game {
-    margin: 0 !important;
-    padding: 0 !important;
-    position: absolute !important;
-    left: 0;
-    text-shadow: 0 0.2rem 1rem #0c7b46;
-    right: 0;
-    bottom: 0;
-    top: 0;    
-}
 
 @keyframes opacity {
     to { opacity: 1; }

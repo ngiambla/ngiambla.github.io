@@ -1,0 +1,129 @@
+{
+  "_comment": "Single source of truth for the site. Edit this file to update the bio, jobs, papers and projects; `npm run content` regenerates the files that appear in the terminal's filesystem.",
+  "updated": "2026-11-27",
+  "profile": {
+    "name": "Nicholas V. Giamblanco",
+    "handle": "ngiambla",
+    "host": "coquitlam",
+    "title": "Compiler Engineer",
+    "location": "Coquitlam, British Columbia, Canada",
+    "hometown": "Arnprior, Ontario",
+    "github": "https://github.com/ngiambla",
+    "site": "https://ngiambla.github.io/",
+    "summary": [
+      "I'm a compiler engineer who builds languages, compilers and tooling for hardware accelerators.",
+      "These days I design data-flow languages, compilers and debuggers that make unusual hardware easier to program.",
+      "My training is in high-level synthesis (HLS): my M.A.Sc. at the University of Toronto, with Prof. Jason H. Anderson, focused on dynamic memory allocation for HLS in LegUp."
+    ],
+    "interests": ["compilers (LLVM, MLIR, CIRCT)", "data-flow computing", "high-level synthesis", "hardware verification and simulation", "debuggers and developer tooling"]
+  },
+  "experience": [
+    {
+      "org": "Cerebras Systems", "where": "Coquitlam, BC", "role": "Senior Member of Technical Staff, Advanced Tech. R&D", "when": "Sep 2024 - present",
+      "highlights": [
+        "Designing a user-friendly data-flow language and compiler that raises the abstraction level for programming Cerebras' Wafer-Scale Engines.",
+        "Built a register allocator that cut code size and improved runtime performance by 40% on average.",
+        "Built a methodology to connect and manage hundreds of WSEs at high throughput and bandwidth.",
+        "Built a spatial-temporal reservation system for multi-tenancy across many WSEs.",
+        "Introduced a hardware debugger for the WSE; deployed R&D tooling to national lab partners (NETL, Sandia)."
+      ]
+    },
+    {
+      "org": "Cerebras Systems", "where": "Coquitlam, BC", "role": "Senior Member of Technical Staff, Strategic Initiatives", "when": "Jun 2024 - Sep 2024",
+      "highlights": [
+        "Compiler and runtime optimizations for the world's fastest LLM inference.",
+        "Introduced a neural-network-compiler fuzzer for inference and training flows."
+      ]
+    },
+    {
+      "org": "Rain AI", "where": "Coquitlam, BC", "role": "Staff Compiler Engineer", "when": "Mar 2024 - Jun 2024",
+      "highlights": [
+        "Compiled neural networks for a compute-in-memory RISC-V edge device with MLIR and LLVM.",
+        "Implemented a path to fully use RISC-V's RVV vector extension."
+      ]
+    },
+    {
+      "org": "Micron Technology", "where": "Coquitlam, BC", "role": "Principal Compiler Engineer, Silicon-Systems AI", "when": "Apr 2022 - Mar 2024",
+      "highlights": [
+        "Hardware design-verification techniques that find bugs up to 16x faster.",
+        "Automatic RTL co-simulation environment with up to 76x less simulation time (innovation award).",
+        "A compiler infrastructure for hardware static analysis, 5x faster than commercial tools."
+      ]
+    },
+    {
+      "org": "Cerebras Systems", "where": "Toronto, ON", "role": "Member of Technical Staff", "when": "Aug 2020 - Apr 2022",
+      "highlights": [
+        "Core compiler and runtime features for the Weight-Streaming product, plus a Weight-Streaming tensor debugger.",
+        "A replay debugger for the CS-1 with reverse debugging, value tracking and profiling, used company-wide.",
+        "Random-program test infrastructure for the LLVM backend; compiler passes that improved code by 10%."
+      ]
+    },
+    {
+      "org": "Untether AI", "where": "Toronto, ON", "role": "Compiler Engineer", "when": "Jan 2020 - Aug 2020",
+      "highlights": ["Principal engineer for the LLVM compiler backend, delivered 6 months ahead of schedule."]
+    },
+    {
+      "org": "Information Sciences Institute (USC)", "where": "Arlington, VA and Toronto, ON", "role": "Visiting Research Assistant, then Researcher", "when": "Jun 2019 - Jun 2020",
+      "highlights": [
+        "Project REAPER: an HDL-to-LLVM compiler.",
+        "Sped up an algorithm in a NASA project by 30,000x with high-level synthesis."
+      ]
+    }
+  ],
+  "education": [
+    { "school": "University of Toronto", "degree": "M.A.Sc., Electrical & Computer Engineering", "when": "2019", "note": "Thesis: Dynamic Memory Allocation Techniques for High-Level Synthesis. Supervisor: Prof. Jason H. Anderson." },
+    { "school": "Ryerson University", "degree": "B.Eng., Electrical & Computer Engineering", "when": "2017" }
+  ],
+  "publications": [
+    {
+      "id": "beyond-exascale", "year": 2026, "venue": "HPC Asia 2026",
+      "title": "Beyond Exascale: Dataflow Domain Translation on a Cerebras Cluster",
+      "authors": "Tomas Oppelstrup, Nicholas Giamblanco, Delyan Z. Kalchev, Ilya Sharapov, Mark Taylor, Dirk Van Essendelft, Sivasankaran Rajamanickam, Michael James"
+    },
+    {
+      "id": "workload-skipping", "year": 2025, "venue": "IHIET-AI 2025",
+      "title": "Evaluating Training Acceleration through Selective Workload Skipping: Methods and Benchmarks",
+      "authors": "Kareem Ibrahim, Milos Nikolic, Nicholas Giamblanco, Ali Hadi Zadeh, Enrique Torres Sanchez, Andreas Moshovos",
+      "code": "https://github.com/ngiambla/gskip"
+    },
+    {
+      "id": "fsm-detection", "year": 2024, "venue": "Innovations in Compiler Technology, Bangalore 2024 (poster)",
+      "title": "Towards Higher First Silicon Success via Improved Finite-State Machine Detection",
+      "authors": "Ian D. Taras, Nicholas Giamblanco, Thomas Peters, Vikram Narayan, Samir Mitta"
+    },
+    {
+      "id": "vlang", "year": 2021,
+      "title": "vlang: Mapping Verilog Netlists to Modern Technologies",
+      "authors": "Nicholas Giamblanco, Andrew Schmidt",
+      "code": "https://github.com/ngiambla/vlang"
+    },
+    {
+      "id": "asap", "year": 2019, "venue": "FPT 2019 (IEEE)",
+      "title": "ASAP: Automatic Sizing and Partitioning for Dynamic Memory Heaps in High-Level Synthesis",
+      "authors": "Nicholas Giamblanco, Jason Anderson"
+    },
+    {
+      "id": "hls-malloc", "year": 2019, "venue": "FPL 2019 (IEEE)",
+      "title": "A Dynamic Memory Allocation Library for High-Level Synthesis",
+      "authors": "Nicholas Giamblanco, Jason Anderson",
+      "code": "https://github.com/ngiambla/libmem",
+      "bench": "https://github.com/ngiambla/dmbenchhls"
+    },
+    {
+      "id": "keylug", "year": 2017, "venue": "CCECE 2017 (IEEE), pp. 625-628",
+      "title": "Keyword and Keyphrase Extraction Using Newton's Law of Universal Gravitation",
+      "authors": "Nicholas Giamblanco, Prathap Siddavaatam",
+      "code": "https://github.com/ngiambla/keylug"
+    }
+  ],
+  "projects": [
+    { "name": "libmem", "url": "https://github.com/ngiambla/libmem", "about": "Dynamic memory allocation library for high-level synthesis (FPL 2019)." },
+    { "name": "vlang", "url": "https://github.com/ngiambla/vlang", "about": "Verilog netlists to LLVM IR." },
+    { "name": "nnflex", "url": "https://github.com/ngiambla/nnflex", "about": "A flexible simulator framework for ML/NN accelerators." },
+    { "name": "gskip", "url": "https://github.com/ngiambla/gskip", "about": "Gradient skipping for faster training." },
+    { "name": "dmbenchhls", "url": "https://github.com/ngiambla/dmbenchhls", "about": "Dynamic memory benchmarks for HLS." },
+    { "name": "qvmi", "url": "https://github.com/ngiambla/qvmi", "about": "Quick Verilog Module Isolator: isolates a design for testing." },
+    { "name": "sift", "url": "https://github.com/ngiambla/sift", "about": "Signature-based fault tolerance." },
+    { "name": "logic", "url": "https://github.com/ngiambla/logic", "about": "A 2-D logic game." }
+  ]
+}
