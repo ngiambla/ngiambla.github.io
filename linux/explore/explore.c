@@ -239,10 +239,12 @@ static void render(void)
                 int me = (int)px == x && ((int)py == y || (int)py == y2);
                 int note = map[y][x] == 'P' || map[y2][x] == 'P';
                 int top = solid(x, y), bot = y + 1 < MAP_H ? solid(x, y + 1) : 0;
-                if (me) outs("\x1b[0;1;33m@");
-                else if (note) outs("\x1b[0;1;35mP");
-                else outs(top && bot ? "\x1b[0;32m\xe2\x96\x88" : top ? "\x1b[0;32m\xe2\x96\x80"
-                          : bot ? "\x1b[0;32m\xe2\x96\x84" : "\x1b[0;40m ");
+                /* everything on a black background so the map stays legible
+                 * over the 3-D view */
+                if (me) outs("\x1b[0;1;33;40m@");
+                else if (note) outs("\x1b[0;1;35;40mP");
+                else outs(top && bot ? "\x1b[0;32;40m\xe2\x96\x88" : top ? "\x1b[0;32;40m\xe2\x96\x80"
+                          : bot ? "\x1b[0;32;40m\xe2\x96\x84" : "\x1b[0;40m ");
             }
             outs("\x1b[0m");
         }
