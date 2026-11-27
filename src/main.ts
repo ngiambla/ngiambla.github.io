@@ -30,8 +30,10 @@ term.loadAddon(fit);
 term.loadAddon(serializer);
 
 async function main() {
+  // Load the webfont before xterm measures its cells, or the grid comes out
+  // sized for the fallback font and leaves an empty strip on the right.
+  await Promise.all([document.fonts.load('17px "Ubuntu Mono"'), document.fonts.load('bold 17px "Ubuntu Mono"')]).catch(() => {});
   term.open(document.getElementById("term")!);
-  await document.fonts.ready;
   fit.fit();
   term.focus();
 
@@ -83,7 +85,12 @@ async function main() {
     dirty = true;
     if (!shellUp) {
       tail = (tail + String.fromCharCode(b)).slice(-64);
-      if (tail.includes(PROMPT_MARK)) { shellUp = true; sendSize(); scheduleSave(5000); }
+      if (tail.includes(PROMPT_MARK)) {
+        shellUp = true;
+        // The resize listener in the guest may still be starting: say it a few times.
+        for (const ms of [0, 2000, 6000]) setTimeout(sendSize, ms);
+        scheduleSave(5000);
+      }
     }
   });
   const enc = new TextEncoder();

@@ -5,11 +5,11 @@ body {
     margin: 0;
     background: black;
 }
+/* xterm's fit addon sizes to the parent's content box, so the gutter is an
+ * inset rather than padding */
 #term {
-    height: 100vh;
-    box-sizing: border-box;
-    padding: 12px 16px;
-    background: var(--background);
+    position: absolute;
+    inset: 12px 16px;
 }
 #term .xterm-viewport { background: transparent !important; }
 :root {
@@ -83,6 +83,8 @@ https://blog.carbonfive.com/2015/01/07/vintage-terminal-effect-in-css3/
 .tv {
     height: 100vh;
     position: relative;
+    overflow: hidden;
+    background: var(--background);
 }
 .tv.collapse {
     animation: size 2s ease-out;
