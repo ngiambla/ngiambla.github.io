@@ -64,6 +64,10 @@ async function main() {
     bzimage_initrd_from_filesystem: true,
     cmdline: "rw root=host9p rootfstype=9p rootflags=trans=virtio,cache=loose modules=virtio_pci tsc=reliable init_on_free=on console=ttyS0",
     uart1: true,
+    // Networking through the browser: the guest's plain-HTTP requests become
+    // fetch() calls (made over HTTPS), so only CORS-enabled sites answer.
+    net_device: { type: "virtio", relay_url: "fetch" },
+    preserve_mac_from_state_image: true,
     disable_keyboard: true,
     disable_mouse: true,
     disable_speaker: true,
