@@ -97,6 +97,7 @@ add("README", [
   "  open vlang           open a project or paper's link in a new tab",
   "  explore              a first-person ASCII maze (source: ~/explore)",
   "  gcc hello.c          compile and run C",
+  "  python3, htop, tmux  also installed",
   "",
   `Last updated ${site.updated}.`,
 ].join("\n"));
