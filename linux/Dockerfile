@@ -4,7 +4,8 @@ FROM docker.io/i386/alpine:3.22
 
 # Kernel + init, then the toolchain visitors get to play with.
 RUN apk add --no-cache openrc alpine-base agetty linux-virt linux-firmware-none \
-        gcc musl-dev make less vim file ncurses
+        gcc musl-dev make less vim file ncurses \
+        python3 htop tmux
 
 # ---- user, hostname, login ------------------------------------------------
 ARG USER=ngiambla
