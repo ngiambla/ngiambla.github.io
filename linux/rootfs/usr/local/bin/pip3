@@ -1,0 +1,19 @@
+#!/usr/bin/python3
+# pip, with https:// requests sent as http://. Inside this VM, the network is
+# the browser's fetch(), which only sees plain HTTP and upgrades it to HTTPS
+# itself (the page is served over HTTPS), so the transfer is still encrypted.
+import sys
+from pip._vendor.requests import sessions
+
+_request = sessions.Session.request
+
+def request(self, method, url, *args, **kwargs):
+    if isinstance(url, str) and url.startswith("https://"):
+        url = "http://" + url[len("https://"):]
+    return _request(self, method, url, *args, **kwargs)
+
+sessions.Session.request = request
+
+from pip._internal.cli.main import main
+sys.argv[0] = "pip"
+sys.exit(main())
