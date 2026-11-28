@@ -1,0 +1,26 @@
+#!/usr/bin/python3
+# pip, with https:// requests sent as http://. Inside this VM, the network is
+# the browser's fetch(), which only sees plain HTTP and upgrades it to HTTPS
+# itself (the page is served over HTTPS), so the transfer is still encrypted.
+import sys
+from pip._vendor.requests import sessions
+
+_request = sessions.Session.request
+
+# Headers outside the CORS "simple" set make the browser send a preflight that
+# PyPI rejects, so only these go out.
+_SIMPLE = {"accept", "accept-language", "content-language", "range"}
+
+def request(self, method, url, *args, **kwargs):
+    if isinstance(url, str) and url.startswith("https://"):
+        url = "http://" + url[len("https://"):]
+    self.headers = {k: v for k, v in self.headers.items() if k.lower() in _SIMPLE}
+    headers = kwargs.get("headers") or {}
+    kwargs["headers"] = {k: v for k, v in headers.items() if k.lower() in _SIMPLE}
+    return _request(self, method, url, *args, **kwargs)
+
+sessions.Session.request = request
+
+from pip._internal.cli.main import main
+sys.argv[0] = "pip"
+sys.exit(main())

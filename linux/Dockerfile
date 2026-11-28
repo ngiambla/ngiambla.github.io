@@ -5,7 +5,7 @@ FROM docker.io/i386/alpine:3.22
 # Kernel + init, then the toolchain visitors get to play with.
 RUN apk add --no-cache openrc alpine-base agetty linux-virt linux-firmware-none \
         gcc musl-dev make less vim file ncurses \
-        python3 htop tmux
+        python3 py3-pip htop tmux curl openssh-client
 
 # ---- user, hostname, login ------------------------------------------------
 ARG USER=ngiambla
@@ -21,7 +21,7 @@ RUN chmod +x /usr/local/sbin/* /usr/local/bin/* 2>/dev/null; true
 
 # ---- services: only what a serial shell needs -----------------------------
 RUN for i in devfs dmesg mdev; do rc-update add $i sysinit; done \
- && for i in hwclock modules sysctl hostname bootmisc; do rc-update add $i boot; done \
+ && for i in hwclock modules sysctl hostname bootmisc networking; do rc-update add $i boot; done \
  && rc-update add killprocs shutdown
 
 # ---- content: the generated home directory + the game ----------------------
